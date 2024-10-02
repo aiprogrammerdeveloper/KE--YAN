@@ -19,7 +19,7 @@ const name = info[event.senderID].name
     const axios = require('axios');
     const fs = require("fs")
     if(msgData[event.messageID].attachments.length === 0) {
-        api.sendMessage(`•${name}• unsent this message:\n${msgData[event.messageID].body}`, event.threadID)  
+        api.sendMessage(`•${name}• unsent this message:\n\n${msgData[event.messageID].body}`, event.threadID)  
     } else if(msgData[event.messageID].attachments[0].type == 'photo')  {   
       var photo = []
       var del = []

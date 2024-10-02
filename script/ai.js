@@ -4,7 +4,7 @@ module.exports.config = {
   name: 'ai',
   version: '1.0.0',
   hasPermission: 0,
-  usePrefix: false,
+  usePrefix: true,
   aliases: ['gpt', 'openai'],
   description: "An AI command powered by GPT-4",
   usages: "ai [prompt]",
@@ -32,7 +32,7 @@ module.exports.run = async function({ api, event, args }) {
     }
   }
 
-  api.sendMessage(`🔍 "${input}"`, event.threadID, event.messageID);
+  api.sendMessage(`answering "${input}"`, event.threadID, event.messageID);
   
   try {
     const url = event.type === "message_reply" && event.messageReply.attachments[0]?.type === "photo"

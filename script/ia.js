@@ -14,8 +14,8 @@ module.exports.config = {
     version: '2',
     role: 0,
     hasPrefix: false,
-    aliases: ["12","ia"],
-    description: "Command for AI-generated responses styled with special fonts 𝗔𝗡𝗗 𝗘𝗠𝗢𝗝𝗜𝗦.",
+    aliases: ["12"],
+    description: "Command for AI-generated responses styled with special fonts and emojis.",
     usage: "ex : ai [prompt]",
     credits: 'aesther',
     cooldown: 1,
@@ -26,24 +26,21 @@ module.exports.run = async function({ api, event, args }) {
     
     if (!input) {
         api.sendMessage('[📑] ᗩEᔕTᕼEᖇ :\n\n(๑•̀ㅁ•́ฅ✧ 𝗬𝗢𝗢 ?? .', event.threadID, event.messageID);
-        api.setMessageReaction("🌐", event.messageID, () => {}, true);
+        api.setMessageReaction("🌷", event.messageID, () => {}, true);
         return;
     }
     
     try {
-        const { data } = await axios.get(`https://hiroshi-rest-api.replit.app/ai/llama?ask=${encodeURIComponent(input)}`);
-        let response = data.response;
+        const RolePlay = "quand tu répond à cette question ajoutes des emojis convenable :\n\n";
+        const { data } = await axios.get(`https://sandipbaruwal.onrender.com/gemini?prompt=${encodeURIComponent(RolePlay + input)}`);
+        let response = data.answer;
+        response = response.split('').map(char => fonts[char] || char).join('');
         
-        // Replace characters with stylized characters from fonts
-        response = response.split('').map(char => {
-            return fonts[char] || char; // Using || operator for default fallback
-        }).join('');
-        
-        api.sendMessage(`[📑] ᗩEᔕTᕼEᖇ :\n\n${response}`, event.threadID, event.messageID);
-        api.setMessageReaction("🌊", event.messageID, () => {}, true);
+        api.sendMessage({ body: `[📑] ᗩEᔕTᕼEᖇ :\n\n${response}` }, event.threadID, event.messageID);
+        api.setMessageReaction("🌸", event.messageID, () => {}, true);
         
     } catch (error) {
         console.error('Error:', error);
-        api.sendMessage('⚠️ Error Loading ⚠️', event.threadID, event.messageID);
+        api.sendMessage({ body: '⚠️ Error Loading ⚠️' }, event.threadID, event.messageID);
     }
 };

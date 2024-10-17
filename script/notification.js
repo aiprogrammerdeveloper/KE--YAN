@@ -3,7 +3,7 @@ const fs = require("fs-extra");
 const path = require("path");
 
 module.exports.config = {
-	name: "sendnoti",
+	name: "notification",
 	version: "1.1.0",
 	role: 2,
 	description: "Sends a message to all groups and can only be done by the admin.made by Aesther",

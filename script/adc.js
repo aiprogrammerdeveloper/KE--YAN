@@ -1,85 +1,78 @@
+const axios = require("axios");
+const fs = require("fs-extra");
+const path = require("path");
+
 module.exports.config = {
-  name: "adc",
-  version: "1.0.0",
-  role: 3,
-  hasPrefix: true,
-  usage: '[reply or text]',
-  description: 'Apply code from buildtooldev and pastebin',
-  credits: 'Deveploper',
-  cooldown: 5
+	name: "sendnoti",
+	version: "1.1.0",
+	role: 2,
+	description: "Sends a message to all groups and can only be done by the admin.made by Aesther",
+	hasPrefix: false,
+	aliases: ["noti"],
+	usages: "[Text]",
+	cooldown: 0,
 };
-module.exports.run = async function({
-  api,
-  event,
-  args
-}) {
-  const axios = require('axios');
-  const fs = require('fs');
-  const request = require('request');
-  const cheerio = require('cheerio');
-  const {
-    senderID,
-    threadID,
-    messageID,
-    messageReply,
-    type
-  } = event;
-  var name = args[0];
-  if (type == "message_reply") {
-    var text = messageReply.body;
-  }
-  if (!text && !name) return api.sendMessage('Please reply to the link you want to apply the code to or write the file name to upload the code to pastebin!', threadID, messageID);
-  if (!text && name) {
-    var data = fs.readFile(`${__dirname}/${args[0]}.js`, "utf-8", async (err, data) => {
-      if (err) return api.sendMessage(`Command ${args[0]} does not exist!`, threadID, messageID);
-      const {
-        PasteClient
-      } = require('pastebin-api');
-      const client = new PasteClient("R02n6-lNPJqKQCd5VtL4bKPjuK6ARhHb");
-      async function pastepin(name) {
-        const url = await client.createPaste({
-          code: data,
-          expireDate: 'N',
-          format: "javascript",
-          name: name,
-          publicity: 1
-        });
-        var id = url.split('/')[3];
-        return 'https://pastebin.com/raw/' + id;
-      }
-      var link = await pastepin(args[1] || 'noname');
-      return api.sendMessage(link, threadID, messageID);
-    });
-    return;
-  }
-  var urlR = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/;
-  var url = text.match(urlR);
-  if (url[0].indexOf('pastebin') !== -1) {
-    axios.get(url[0]).then(i => {
-      var data = i.data;
-      fs.writeFile(`${__dirname}/${args[0]}.js`, data, "utf-8", function(err) {
-        if (err) return api.sendMessage(`An error occurred while applying the code ${args[0]}.js`, threadID, messageID);
-        api.sendMessage(`Applied the code to ${args[0]}.js, use command load to use!`, threadID, messageID);
-      });
-    });
-  }
-  if (url[0].indexOf('buildtool') !== -1 || url[0].indexOf('tinyurl.com') !== -1) {
-    const options = {
-      method: 'GET',
-      url: messageReply.body
-    };
-    request(options, function(error, response, body) {
-      if (error) return api.sendMessage('Please only reply to the link (doesnt contain anything other than the link)', threadID, messageID);
-      const load = cheerio.load(body);
-      load('.language-js').each((index, el) => {
-        if (index !== 0) return;
-        var code = el.children[0].data;
-        fs.writeFile(`${__dirname}/${args[0]}.js`, code, "utf-8", function(err) {
-          if (err) return api.sendMessage(`An error occurred while applying the new code to "${args[0]}.js".`, threadID, messageID);
-          return api.sendMessage(`Added this code "${args[0]}.js", use command load to use!`, threadID, messageID);
-        });
-      });
-    });
-    return;
-  }
+
+module.exports.run = async function ({ api, event, args, admin }) {
+	const threadList = await api.getThreadList(100, null, ["INBOX"]);
+	let sentCount = 0;
+	const custom = args.join(" ");
+
+	async function sendMessage(thread) {
+		try {
+			await api.sendMessage(
+`𝙉𝙊𝙏𝙄𝙁𝙄𝘾𝘼𝙏𝙄𝙊𝙉 - 𝘼𝘿𝙈𝙄𝙉\n-----------------------\n🌐 [${custom}]\n-----------------------\n〉「𝙰𝚎𝚜𝚝𝚑𝚎𝚛」`,
+				thread.threadID
+			);
+			sentCount++;
+
+			const content = `${custom}`;
+			const languageToSay = "fr"; 
+			const pathFemale = path.resolve(__dirname, "cache", `${thread.threadID}_female.mp3`);
+
+			await downloadFile(
+				`https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(content)}&tl=${languageToSay}&client=tw-ob&idx=1`,
+				pathFemale
+			);
+			api.sendMessage(
+				{ attachment: fs.createReadStream(pathFemale) },
+				thread.threadID,
+				() => fs.unlinkSync(pathFemale)
+			);
+		} catch (error) {
+			console.error("Error sending a message:", error);
+		}
+	}
+
+	for (const thread of threadList) {
+		if (sentCount >= 20) {
+			break;
+		}
+		if (thread.isGroup && thread.name != thread.threadID && thread.threadID != event.threadID) {
+			await sendMessage(thread);
+		}
+	}
+
+	if (sentCount > 0) {
+		api.sendMessage(`› Sent the notification successfully.`, event.threadID);
+	} else {
+		api.sendMessage(
+			"› No eligible group threads found to send the message to.",
+			event.threadID
+		);
+	}
+};
+
+async function downloadFile(url, filePath) {
+	const writer = fs.createWriteStream(filePath);
+	const response = await axios({
+		url,
+		method: 'GET',
+		responseType: 'stream'
+	});
+	response.data.pipe(writer);
+	return new Promise((resolve, reject) => {
+		writer.on('finish', resolve);
+		writer.on('error', reject);
+	});
 }

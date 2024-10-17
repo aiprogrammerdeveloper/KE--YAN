@@ -31,7 +31,7 @@ module.exports.run = async function({
       }
       helpMessage += '━ 𝗘𝗩𝗘𝗡𝗧.𝗟𝗜𝗦𝗧- ˕ -ྀマ[🏷️]\n━━━━━━━━━━━\n';
       eventCommands.forEach((eventCommand, index) => {
-        helpMessage += `✦ \t${index + 1}▪﹝${prefix}${eventCommand}﹞\n`;
+        helpMessage += `✦ \t${index + 1}▪﹝${prefix}${eventCommand}﹞\n\n🏷️https://www.facebook.com/Thea.Starliness`;
       });
       helpMessage += ``;
       api.sendMessage(helpMessage, event.threadID, event.messageID);

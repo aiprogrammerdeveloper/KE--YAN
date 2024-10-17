@@ -1,47 +1,39 @@
-const axios = require('axios');
-const fs = require('fs');
 module.exports.config = {
-  name: 'anime',
-  version: '1.0.0',
-  role: 0,
-  hasPrefix: true,
-  aliases: ['hanime'],
-  description: 'Get a random anime image',
-  usage: "Anime [category-type]",
-  credits: 'Develeoper',
-  cooldown: 5,
-};
-module.exports.run = async function({
-  api,
-  event,
-  args
-}) {
+  name: "lyrics",
+  role: 0, 
+  description: "Search Lyrics",
+  aliases:['lv'], 
+  usage: "[title of song]",
+  credits: "deku & remod to mirai by Eugene Aguilar",
+  cooldown: 0,
+  hasPrefix: false
+}
+
+module.exports.run = async function({ api, event, args }) {
+  const fs = require("fs");
+  const axios = require("axios");
+  const t = args.join(" ");
+
+  if (!t) return api.sendMessage("[❌] The song is 𝗠𝗜𝗦𝗦𝗜𝗡𝗚.", event.threadID, event.messageID);
+
   try {
-    const input = args.join(' ');
-    if (!input) {
-      const message = `Here's the list of anime categories:\n\nCategory: nsfw\nType:\n• waifu\n• neko\n• trap\n• blowjob\n\nCategory: sfw\nType:\n• waifu\n• neko\n• shinobu\n• megumin\n• bully\n• cuddle\n• cry\n• hug\n• awoo\n• kiss\n• lick\n• pat\n• smug\n• bonk\n• yeet\n• blush\n• smile\n• wave\n• highfive\n• handhold\n• nom\n• bite\n• glomp\n• slap\n• kill\n• kick\n• happy\n• wink\n• poke\n• dance\n• cringe\n\nUsage: anime category - type`;
-      api.sendMessage(message, event.threadID, event.messageID);
-    } else {
-      const split = input.split('-').map(item => item.trim());
-      const choice = split[0];
-      const category = split[1];
-      const time = new Date();
-      const timestamp = time.toISOString().replace(/[:.]/g, "-");
-      const pathPic = __dirname + '/cache/' + `${timestamp}_waifu.png`;
-      const {
-        data
-      } = await axios.get(`https://api.waifu.pics/${choice}/${category}`);
-      const picture = data.url;
-      const getPicture = (await axios.get(picture, {
-        responseType: 'arraybuffer'
-      })).data;
-      fs.writeFileSync(pathPic, Buffer.from(getPicture, 'utf-8'));
-      api.sendMessage({
-        body: '',
-        attachment: fs.createReadStream(pathPic)
-      }, event.threadID, () => fs.unlinkSync(pathPic), event.messageID);
-    }
-  } catch (error) {
-    api.sendMessage(`Error in the anime command: ${error.message}`);
+    const r = await axios.get('https://lyrist.vercel.app/api/' + t);
+    const { image, lyrics, artist, title } = r.data;
+
+    let ly = __dirname + "/../public/image/lyrics.png";
+    let suc = (await axios.get(image, { responseType: "arraybuffer" })).data;
+    fs.writeFileSync(ly, Buffer.from(suc, "utf-8"));
+    let img = fs.createReadStream(ly);
+
+    api.setMessageReaction("🎼", event.messageID, (err) => {}, true);
+
+    return api.sendMessage({
+      body: `シ𝗛𝗘𝗥𝗘 𝗧𝗛𝗘 𝗟𝗬𝗥𝗜𝗖𝗦シ\n\n▪[📑]𝗧𝗜𝗧𝗟𝗘: \n➤ ${title}\n━━━━━━━━━━━\n▪[🆔]𝗔𝗥𝗧𝗜𝗦𝗧𝗘: \n➤ ${artist}\n━━━━━━━━━━━\n▪〉﹝𝗟𝗬𝗥𝗜𝗖𝗦﹞:\n\n${lyrics}\n━━━━━━━━━━━\n\n🟢ᗩƐᔕƬHƐᖇ⚪- ˕ •マ`,
+      attachment: img
+    }, event.threadID, () => fs.unlinkSync(ly), event.messageID);
+  } catch (a) {
+    api.setMessageReaction("😿", event.messageID, (err) => {}, true);
+
+    return api.sendMessage(a.message, event.threadID, event.messageID);
   }
-};
+      }

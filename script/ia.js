@@ -8,6 +8,12 @@ const fonts = {
     J: "𝗝", K: "𝗞", L: "𝗟", M: "𝗠", N: "𝗡", O: "𝗢", P: "𝗣", Q: "𝗤", R: "𝗥",
     S: "𝗦", T: "𝗧", U: "𝗨", V: "𝗩", W: "𝗪", X: "𝗫", Y: "𝗬", Z: "𝗭",
 };
+const stickers = [
+  "254594546003916", "254595732670464", "254593389337365",
+  "37117808696806", "254597316003639", "254598806003490",
+  "254596219337082", "2379537642070973", "2379545095403561",
+  "2379551785402892", "254597059336998"
+];
 
 module.exports.config = {
     name: 'ai',
@@ -25,7 +31,8 @@ module.exports.run = async function({ api, event, args }) {
     const input = args.join(' ');
     
     if (!input) {
-        api.sendMessage('[📑] ᗩEᔕTᕼEᖇ :\n\n(๑•̀ㅁ•́ฅ✧ 𝗬𝗢𝗢 ?? .', event.threadID, event.messageID);
+        const randomSticker = stickers[Math.floor(Math.random() * stickers.length)];
+        await api.sendMessage({ sticker: randomSticker }, event.threadID);
         api.setMessageReaction("🌷", event.messageID, () => {}, true);
         return;
     }

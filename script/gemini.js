@@ -28,10 +28,10 @@ module.exports.run = async function ({ api, event, args }) {
     try {
         await api.sendMessage('🌸𝙂𝙀𝙈𝙄𝙉𝙄 𝙂𝙊𝙊𝙂𝙇𝙀🌸........', event.threadID);
 
-        const response = await axios.get(`${encodeURIComponent(prompt)}&url=${url}`);
-        const description = response.data.gemini;
+        const response = await axios.get(`https://sandipbaruwal.onrender.com/gemini?prompt=${encodeURIComponent(prompt)}&url=${url}`);
+        const description = response.data.answer;
 
-        return api.sendMessage(`🌸 𝙂𝙀𝙈𝙄𝙉𝙄 𝙂𝙊𝙊𝙂𝙇𝙀 🌸\n━━━━━━━━━━━━━━━━━━\n${description}\n━━━━━━━━━━━━━━━━━━`, event.threadID, event.messageID);
+        return api.sendMessage(`🌸𝙂𝙀𝙈𝙄𝙉𝙄 𝙂𝙊𝙊𝙂𝙇𝙀🌸\n━━━━━━━━━━━━━━━━━━\n${description}\n━━━━━━━━━━━━━━━━━━`, event.threadID, event.messageID);
     } catch (error) {
         console.error(error);
         return api.sendMessage('❌ | An error occurred while processing your request.', event.threadID, event.messageID);

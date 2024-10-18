@@ -22,10 +22,10 @@ module.exports.run = async ({
     let translateThis, lang;
     if (event.type === "message_reply") {
       translateThis = event.messageReply.body;
-      lang = targetLanguage || 'tl';
+      lang = targetLanguage || 'fr';
     } else {
       translateThis = content;
-      lang = targetLanguage || 'tl';
+      lang = targetLanguage || 'fr';
     }
     return request(encodeURI(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${lang}&dt=t&q=${translateThis}`), (err, response, body) => {
       if (err) return api.sendMessage("An error has occurred!", event.threadID, event.messageID);

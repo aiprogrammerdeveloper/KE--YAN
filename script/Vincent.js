@@ -23,7 +23,7 @@ module.exports.config = {
     aliases: ["ai"],
     description: "Command for AI-generated responses styled with special fonts and emojis.",
     usage: "ex : ai [prompt]",
-    credits: 'aesther',
+    credits: 'Vincent Armenion',
     cooldown: 1,
 };
 
@@ -33,7 +33,7 @@ module.exports.run = async function({ api, event, args }) {
     if (!input) {
         const randomSticker = stickers[Math.floor(Math.random() * stickers.length)];
         await api.sendMessage({ sticker: randomSticker }, event.threadID);
-        api.setMessageReaction("🌷", event.messageID, () => {}, true);
+        api.setMessageReaction("🤖", event.messageID, () => {}, true);
         return;
     }
     
